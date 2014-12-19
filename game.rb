@@ -27,7 +27,7 @@ class Checkers
       if error_message
         puts error_message
       end
-      puts "It's #{current_player}'s turn."
+      puts "It's #{current_player}'s turn. Spacebar to select move. Enter to make move."
       input_char = read_char
       coord = board.cursor
       begin
@@ -46,18 +46,18 @@ class Checkers
           if gets.chomp == "y"
             exit
           end
-        when "\e[A" #up arrow
+        when "\e[A"
           board.move_cursor(:up)
-        when "\e[B" #down
+        when "\e[B"
           board.move_cursor(:down)
-        when "\e[C" #right
+        when "\e[C"
           board.move_cursor(:right)
-        when "\e[D" #left
+        when "\e[D"
           board.move_cursor(:left)
-        when "s"
-          save_game
-        when "l"
-          load_game
+        # when "s"
+        #   save_game
+        # when "l"
+        #   load_game
         when "\u0003"
           puts "CONTROL-C"
           exit 0
@@ -92,18 +92,17 @@ end
 class HumanPlayer
   attr_accessor :board, :color
 
-  def self.column
-    columns = Hash.new(0)
-    [*"a".."h"].each_with_index do |letter, index|
-      columns[letter.intern] = letter.ord - 97
-    end
-    columns
-  end
-
-  def self.row
-    [nil, 7,6,5,4,3,2,1,0]
-  end
-
+  # def self.column
+  #   columns = Hash.new(0)
+  #   [*"a".."h"].each_with_index do |letter, index|
+  #     columns[letter.intern] = letter.ord - 97
+  #   end
+  #   columns
+  # end
+  #
+  # def self.row
+  #   [nil, 7,6,5,4,3,2,1,0]
+  # end
 
   def initialize(color)
     @board = board
@@ -114,9 +113,9 @@ class HumanPlayer
     board.move(moves, color)
   end
 
-  def parse_user_input(input)
-    Vector[ self.class.row[input[1].to_i], self.class.column[input[0].intern] ]
-  end
+  # def parse_user_input(input)
+  #   Vector[ self.class.row[input[1].to_i], self.class.column[input[0].intern] ]
+  # end
 
 end
 

@@ -1,6 +1,5 @@
 class Piece
   attr_accessor :char, :king, :position, :board, :slides, :jumps
-  attr_accessor :all_available_slides, :all_available_jumps
   attr_reader :color, :moves
 
   def self.vectors(color, king = false)
@@ -26,8 +25,6 @@ class Piece
     @board = board
     @slides = []
     @jumps = []
-    @all_available_slides = []
-    @all_available_jumps = []
   end
 
   def determine_moves(start)
@@ -50,7 +47,6 @@ class Piece
 
   def perform_slide(start, end_pos, player_color)
     determine_moves(start)
-    ##line 57 needs to check for ALL available jump moves, not just this piece's
     raise "Must jump when jump is available." if board.has_jumps?(player_color)
     raise "Can't move opponent pieces." unless board[start].color == player_color
     raise "Invalid move." unless slides.include?(end_pos)
@@ -64,7 +60,6 @@ class Piece
       first_move = position + vector
       next unless board.class.on_board?(first_move)
       next if board.is_empty?(first_move)
-      # p first_move
       next if board[first_move].color == color
       jump = first_move + vector
       return true if board.is_empty?(jump)
