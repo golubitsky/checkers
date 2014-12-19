@@ -77,6 +77,13 @@ class Board
     end
   end
 
+  def has_jumps?(color)
+    grid.flatten.compact.each do |piece|
+      return true if piece.has_jumps?
+    end
+    false
+  end
+
   def is_empty?(position)
     self[position].nil?
   end
@@ -135,13 +142,13 @@ class Board
 
   def move_cursor(direction)
     case direction
-    when "up"
+    when :up
       self.cursor = cursor + Vector[-1, 0]
-    when "down"
+    when :down
       self.cursor = cursor + Vector[1, 0]
-    when "left"
+    when :left
       self.cursor = cursor + Vector[0, -1]
-    when "right"
+    when :right
       self.cursor = cursor + Vector[0, 1]
     end
 
@@ -154,7 +161,7 @@ class Board
         x
       end
     end
-    Vector.elements(cursor)
+    self.cursor = Vector.elements(cursor)
   end
 end
 #

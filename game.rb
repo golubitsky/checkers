@@ -6,6 +6,7 @@ require 'colorize'
 
 class Checkers
   attr_reader :board, :current_player, :players
+  attr_accessor :move_vectors, :error_message
 
   def initialize
     @board = Board.new
@@ -14,24 +15,78 @@ class Checkers
       black: HumanPlayer.new(:black)
     }
     @current_player = :white
+    @move_vectors = []
+    @error_message = nil
   end
 
   def play
+
     until board.lost?(current_player)
-        system "clear"
-        puts board.render
-        begin
-          players[current_player].play_turn(board)
-        rescue => e
-          puts e.message
-          retry
+      system "clear"
+      puts board.render
+      if error_message
+        puts error_message
+      end
+      puts "It's #{current_player}'s turn."
+      input_char = read_char
+      coord = board.cursor
+      begin
+        case input_char
+        when "\r" #RETURN
+          if move_vectors.length >= 2
+            self.error_message = nil
+            players[current_player].play_turn(move_vectors, board)
+            @current_player = current_player == :white ? :black : :white
+            self.move_vectors = []
+          end
+        when " "
+          self.move_vectors << board.cursor
+        when "\e"
+          puts "Are you sure you want to exit the game? (y/n)"
+          if gets.chomp == "y"
+            exit
+          end
+        when "\e[A" #up arrow
+          board.move_cursor(:up)
+        when "\e[B" #down
+          board.move_cursor(:down)
+        when "\e[C" #right
+          board.move_cursor(:right)
+        when "\e[D" #left
+          board.move_cursor(:left)
+        when "s"
+          save_game
+        when "l"
+          load_game
+        when "\u0003"
+          puts "CONTROL-C"
+          exit 0
+        else
         end
-      @current_player = current_player == :white ? :black : :white
+      rescue => e
+        self.move_vectors = []
+        self.error_message = e.message
+      end
     end
     nil
   end
 
-  
+  def read_char
+    STDIN.echo = false
+    STDIN.raw!
+
+    input = STDIN.getc.chr
+    if input == "\e" then
+      input << STDIN.read_nonblock(3) rescue nil
+      input << STDIN.read_nonblock(2) rescue nil
+    end
+  ensure
+    STDIN.echo = true
+    STDIN.cooked!
+
+    return input
+  end
+
 end
 
 class HumanPlayer
@@ -55,17 +110,8 @@ class HumanPlayer
     @color = color
   end
 
-  def play_turn(board)
-    puts "It's #{color}'s turn. Enter coordinates of next move or series of moves (format: e2 e4)"
-    user_input = gets.chomp.downcase
-
-    desired_moves = user_input.scan(/\w{2}/)
-    unless desired_moves.size >= 2 && desired_moves.all? { |pos| pos =~ /[a-h][1-8]/ }
-      raise "Please enter at least 2 coordinates in specified format."
-    end
-    desired_moves.map!{ |move| parse_user_input(move) }
-
-    board.move(desired_moves, color)
+  def play_turn(moves, board)
+    board.move(moves, color)
   end
 
   def parse_user_input(input)

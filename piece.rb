@@ -51,12 +51,23 @@ class Piece
   def perform_slide(start, end_pos, player_color)
     determine_moves(start)
     ##line 57 needs to check for ALL available jump moves, not just this piece's
-    # raise "Must jump when jump is available." if jumps.size > 0
+    # raise "Must jump when jump is available." if board.has_jumps?(player_color)
     raise "Can't move opponent pieces." unless board[start].color == player_color
     raise "Invalid move." unless slides.include?(end_pos)
 
-
     manipulate_board(start, end_pos, player_color)
+  end
+
+  def has_jumps?(start)
+    vectors = self.class.vectors(color, king)
+    vectors.each do |vector|
+      potential_move = start + vector
+      next unless board.class.on_board?(potential_move)
+      if !board.is_empty?(potential_move)
+        potential_move = potential_move + vector #still need to delete the "jumped" piece
+        return true if board.is_empty?(potential_move)
+      end
+    end
   end
 
   def perform_jump(start, end_pos, player_color)
