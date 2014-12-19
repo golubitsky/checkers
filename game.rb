@@ -68,7 +68,7 @@ class Checkers
         self.error_message = e.message
       end
     end
-    nil
+    current_player == :white ? (puts "Black wins!") : (puts "White wins!")
   end
 
   def read_char

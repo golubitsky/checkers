@@ -77,8 +77,10 @@ class Board
     end
   end
 
-  def has_jumps?(color)
+  def has_jumps?(player_color)
     grid.flatten.compact.each do |piece|
+      next unless piece.color == player_color
+      # p piece
       return true if piece.has_jumps?
     end
     false
@@ -165,7 +167,8 @@ class Board
   end
 end
 #
-# a = Board.new
+a = Board.new
+p a.has_jumps?(:white)
 # a.move([ Vector[5,6], Vector[ 4,7] ], :white)
 # a.move([ Vector[2,7], Vector[ 3,6] ], :black)
 # a.move([ Vector[5,0], Vector[ 4,1] ], :white)
